@@ -1,0 +1,31 @@
+{
+  "modelo_clasificador": {
+    "nombre": "BETO + Observations + Conclusion",
+    "accuracy": 0.9801,
+    "f1_macro": 0.8786,
+    "mejor_epoca": 8,
+    "lr": 3e-05,
+    "epochs": 10,
+    "dropout": 0.3
+  },
+  "modelo_auditor": {
+    "nombre": "BETO + solo Observations + Augmentación",
+    "f1_macro": 0.8781,
+    "mejor_epoca": 14,
+    "lr": 3e-05,
+    "epochs": 15,
+    "dropout": 0.5,
+    "augmentacion": true
+  },
+  "estado_del_arte": {
+    "Lopez_Ubeda_2024": 0.74,
+    "Hussain_2024": 0.78
+  },
+  "dataset": {
+    "total": 4357,
+    "train": 3051,
+    "val": 652,
+    "test": 654,
+    "fuente": "Vázquez Noguera et al. 2025"
+  }
+}
