@@ -2,7 +2,7 @@
 
 **Autores:** Sebastián Inostroza · Robinson Moreno  
 **Institución:** Universidad de Valparaíso, Chile  
-**Año:** 2025
+**Año:** 2026
 
 ---
 
