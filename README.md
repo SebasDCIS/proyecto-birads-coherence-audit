@@ -28,7 +28,7 @@ Sistema:  🔴 ALERTA CRÍTICA — posible subestimación oncológica
 | Modelo | F1 Macro | Accuracy |
 |--------|----------|----------|
 | BETO Clasificador | 0.8786 | 98.01% |
-| BETO Auditor | 0.8781 | — |
+| BETO Auditor | 0.8781 | 92.97% |
 | Estado del arte (López-Úbeda 2024) | 0.74 | — |
 
 ---
