@@ -17,12 +17,13 @@ pero asigna una categoría BI-RADS baja.
 Entrada:  Informe completo (texto libre)
 "mamas densas tipo C, nódulo espiculado..."
 "BI-RADS 1. Control anual."
-Sistema:  Extrae BI-RADS asignado → 1
-Predice BI-RADS esperado → 4
-Detecta discrepancia → 3 categorías
-Salida:   🔴 ALERTA CRÍTICA — SUBESTIMACIÓN DE RIESGO
-El texto sugiere BI-RADS 4 pero se asignó BI-RADS 1.
-Posible subestimación oncológica.
+Sistema:  Extrae BI-RADS asignado  → 1 (zona SEGURA)
+Predice BI-RADS esperado  → 4 (zona RIESGO)
+Detecta cruce de zona     → CRÍTICO
+Salida:   🔴 ALERTA CRÍTICA — CRUCE DE ZONA
+El texto sugiere BI-RADS 4 (zona de biopsia)
+pero se asignó BI-RADS 1 (zona segura).
+Revisión inmediata requerida.
 
 
 ```
@@ -32,21 +33,52 @@ Posible subestimación oncológica.
 
 ```
 
-[Informe completo]
+[Informe completo — texto libre]
 ↓
-Extractor BI-RADS (regex escalable) → BI-RADS asignado
+Extractor BI-RADS (regex escalable)
 ↓
-Extractor Observations (regex)      → texto descriptivo
+Extractor Observations (regex)
 ↓
-BETO Auditor (fine-tuned)           → BI-RADS predicho
+BETO Auditor (fine-tuned en español)
 ↓
-Motor de Auditoría                  → nivel de alerta
+Motor de Auditoría con Zonificación Clínica
+↓
+ALERTA
 
 
 ```
 ---
 
-## Resultados
+## Zonificación Clínica
+
+El motor no usa solo distancia numérica.
+Clasifica el BI-RADS en zonas clínicas:
+
+```
+
+ZONA SEGURA:  BI-RADS 0, 1, 2, 3  → vigilancia / benigno
+ZONA RIESGO:  BI-RADS 4, 5, 6     → biopsia / maligno
+
+```
+Cualquier cruce entre zonas genera alerta crítica,
+independientemente de la distancia numérica:
+
+```
+
+BI-RADS 3 → BI-RADS 4  (distancia=1) → 🔴 ALERTA CRÍTICA
+BI-RADS 1 → BI-RADS 2  (distancia=1) → 🟡 REVISIÓN SUGERIDA
+
+```
+---
+
+## Niveles de Alerta
+
+| Alerta | Condición | Acción clínica |
+|--------|-----------|----------------|
+| ✅ COHERENTE | Sin discrepancia | Ninguna |
+| 🟡 REVISIÓN SUGERIDA | Discrepancia leve, misma zona | Revisar antes de firmar |
+| 🟠 ALERTA — SOBREESTIMACIÓN | Cruce zona riesgo → segura | Verificar hallazgos |
+| 🔴 ALERTA CRÍTICA | Cruce zona segura → riesgo | Revisión inmediata |
 
 ---
 
@@ -64,20 +96,11 @@ Motor de Auditoría                  → nivel de alerta
 
 ---
 
-## Niveles de Alerta del Motor de Auditoría
-
-| Alerta | Condición | Acción |
-|---|---|---|
-| ✅ COHERENTE | Discrepancia = 0 | Ninguna |
-| 🟡 REVISIÓN SUGERIDA | Discrepancia = 1 | Revisar antes de firmar |
-| 🟠 SOBREESTIMACIÓN | Predicho < asignado en 2+ | Verificar hallazgos |
-| 🔴 ALERTA CRÍTICA | Predicho > asignado en 2+ | Revisión inmediata |
-
----
-
 ## Extractor BI-RADS Escalable
 
-Cubre todas las variaciones encontradas en sistemas clínicos latinoamericanos:
+Cubre todas las variaciones encontradas en sistemas
+clínicos latinoamericanos:
+
 
 ```
 
@@ -95,12 +118,22 @@ BI-RADS II      → números romanos
 
 ---
 
+---
+
+## Hallazgo adicional
+
+El extractor detectó 3 posibles errores de digitación
+en el dataset original — el texto dice BI-RADS 2
+pero la columna registra BI-RADS 1.
+Documentado como limitación del dataset fuente.
+
+---
+
 ## Dataset
 
-4.357 informes mamográficos en español (Paraguay, 2019-2024).  
-Fuente: Vázquez Noguera et al. (2025) — *Data in Brief*.  
+4.357 informes mamográficos en español (Paraguay, 2019-2024).
+Fuente: Vázquez Noguera et al. (2025) — *Data in Brief*.
 ⚠️ No incluido en el repositorio por privacidad clínica.
-
 
 ---
 
@@ -116,12 +149,23 @@ pip install -r requirements.txt
 
 ---
 
-## Estructura
+## Uso
+
+```python
+# Auditar un informe completo
+resultado = mvp_auditoria_v2(informe_texto)
+imprimir_resultado_v2(resultado)
+```
+
+---
+
+## Estructura del Repositorio
+
 
 ```
 
 ├── notebooks/
-│   └── BETO_BIRADS.ipynb   ← pipeline completo paso a paso
+│   └── BETO_BIRADS.ipynb    ← pipeline completo paso a paso
 ├── results/
 │   ├── figures/
 │   │   └── evaluacion_final.png
