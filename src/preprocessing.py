@@ -21,6 +21,10 @@ MAX_LENGTH = 256
 MODELO_BASE = 'dccuchile/bert-base-spanish-wwm-cased'
 SEP = ' [SEP] '
 
+# Elimina menciones de la categoría (p. ej. "bi-rads 4", "(bi-rads 0)") del texto.
+# Se usa SOLO en la entrada del auditor: debe inferir la categoría, no leerla.
+_PATRON_BIRADS = re.compile(r'\(?\s*bi[\s\-]?rads[\s:]*\d*\s*\)?', re.IGNORECASE)
+
 
 def limpiar_texto(texto):
     if pd.isna(texto) or str(texto).strip() == '':
@@ -36,12 +40,28 @@ def limpiar_texto(texto):
     return texto
 
 
+def quitar_categoria_birads(texto):
+    """Elimina menciones de 'BI-RADS N' del texto de hallazgos para que el
+    auditor infiera la categoria en lugar de leerla. Si el texto no contiene
+    la categoria, se devuelve sin cambios (no altera el resto del corpus)."""
+    s = str(texto)
+    if not _PATRON_BIRADS.search(s):
+        return s
+    s = _PATRON_BIRADS.sub('', s)
+    s = re.sub(r'\s+([.,;:)])', r'\1', s)   # espacio antes de puntuacion
+    s = re.sub(r'\(\s*\)', '', s)           # parentesis vacios
+    s = re.sub(r'\s{2,}', ' ', s).strip()   # espacios dobles
+    return s
+
+
 def construir_inputs(df):
     df = df.copy()
     df['obs_clean']     = df['Observations'].apply(limpiar_texto)
     df['concl_clean']   = df['Conclusion'].apply(limpiar_texto)
+    # texto_input (clasificador) conserva la conclusion completa, con su categoria.
     df['texto_input']   = df['obs_clean'] + SEP + df['concl_clean']
-    df['auditor_input'] = df['obs_clean']
+    # auditor_input NO debe contener la categoria: se elimina de las observaciones.
+    df['auditor_input'] = df['obs_clean'].apply(quitar_categoria_birads)
     return df
 
 

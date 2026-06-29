@@ -1,21 +1,17 @@
-# Dataset — privacidad clínica
-data/raw/
-data/processed/
-*.csv
-
-# Modelos entrenados — archivos pesados
-results/*.pt
-*.pt
-*.bin
-
-# Entorno virtual completo
+# Entornos
 venv/
-
-# Python
+.venv/
 __pycache__/
 *.pyc
-.DS_Store
 .ipynb_checkpoints/
 
-# Logs
-*.log
+# Modelos entrenados (pesados; regenerables con los notebooks)
+results/*.pt
+
+# Sistema
+.DS_Store
+
+# Datos crudos pesados (descomentar si no se versionan)
+# data/raw/*.csv
+*.pt
+*.pt

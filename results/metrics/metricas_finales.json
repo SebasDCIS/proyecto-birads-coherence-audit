@@ -1,17 +1,17 @@
 {
   "modelo_clasificador": {
     "nombre": "BETO + Observations + Conclusion",
-    "accuracy": 0.9801,
-    "f1_macro": 0.8786,
-    "mejor_epoca": 8,
+    "accuracy": 0.9847,
+    "f1_macro": 0.9,
+    "mejor_epoca": 7,
     "lr": 3e-05,
     "epochs": 10,
     "dropout": 0.3
   },
   "modelo_auditor": {
     "nombre": "BETO + solo Observations + Augmentación",
-    "f1_macro": 0.8781,
-    "mejor_epoca": 14,
+    "f1_macro": 0.486,
+    "mejor_epoca": 7,
     "lr": 3e-05,
     "epochs": 15,
     "dropout": 0.5,
