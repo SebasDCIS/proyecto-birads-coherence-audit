@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditoría de Coherencia BI-RADS — Interfaz de presentación</title>
+<style>
+  :root{
+    --azul:#0a3d62; --azul2:#1e5a8a; --azul3:#00629b;
+    --verde:#1e8e4e; --verde-bg:#e6f5ec;
+    --rojo:#c0392b; --rojo-bg:#fdecea;
+    --ambar:#d68910; --ambar-bg:#fdf3e3;
+    --gris:#64748b; --borde:#dfe6ee; --fondo:#f4f7fa; --gris-claro:#eef3f8;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       background:var(--fondo);color:#1a1a1a;line-height:1.5;padding:0 0 50px}
+  header{background:linear-gradient(135deg,var(--azul),var(--azul2));color:#fff;padding:24px 18px 18px;
+         border-radius:0 0 20px 20px;box-shadow:0 4px 16px rgba(10,61,98,.18)}
+  header .wrap-h{max-width:920px;margin:0 auto}
+  header h1{margin:0 0 5px;font-size:clamp(18px,2.4vw,26px);font-weight:800;letter-spacing:-.3px}
+  header p{margin:0;font-size:clamp(12px,1.4vw,15px);opacity:.92}
+  .autores{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.22);font-size:clamp(11px,1.2vw,13px);opacity:.92}
+  .autores .nom{font-weight:600}
+  .wrap{max-width:920px;margin:0 auto;padding:16px}
+
+  /* Tabs */
+  .tabs{display:flex;gap:8px;max-width:920px;margin:16px auto 0;padding:0 16px}
+  .tab{flex:1;text-align:center;background:#fff;border:1.5px solid var(--borde);border-radius:12px 12px 0 0;
+       padding:13px 10px;font-size:clamp(13px,1.5vw,16px);font-weight:700;color:var(--gris);cursor:pointer;
+       border-bottom:none;transition:all .15s}
+  .tab.activa{color:var(--azul);background:#fff;box-shadow:0 -2px 8px rgba(0,0,0,.04)}
+  .tab.activa::after{content:"";display:block;height:3px;background:var(--azul3);border-radius:3px;margin:9px -10px -13px}
+  .panel{display:none;animation:fade .3s ease}
+  .panel.activo{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:#fff;border:1px solid var(--borde);border-radius:14px;padding:18px;margin-bottom:14px;
+        box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .card h2{margin:0 0 12px;font-size:clamp(15px,1.7vw,19px);color:var(--azul)}
+  label{display:block;font-size:13px;font-weight:600;color:var(--azul);margin-bottom:7px}
+  textarea{width:100%;min-height:150px;border:1.5px solid var(--borde);border-radius:10px;padding:12px;
+           font-size:15px;font-family:inherit;resize:vertical;outline:none}
+  textarea:focus{border-color:var(--azul2)}
+  .ejemplos{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .chip{font-size:12px;background:var(--gris-claro);color:var(--azul2);border:1px solid #d6e2ee;border-radius:20px;
+        padding:7px 12px;cursor:pointer;transition:all .12s}
+  .chip:active{transform:scale(.96)}
+  .btn{width:100%;background:var(--azul);color:#fff;border:none;border-radius:11px;padding:15px;
+       font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+  .btn:active{opacity:.85}
+  #resultado{display:none;margin-top:16px}
+  .semaforo{border-radius:14px;padding:22px 18px;text-align:center;border:2px solid;animation:fade .35s ease}
+  .luz{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;
+       justify-content:center;font-size:34px;box-shadow:0 3px 12px rgba(0,0,0,.15)}
+  .estado{font-size:21px;font-weight:800;margin:0 0 4px}
+  .sub{font-size:14px;margin:0;opacity:.9}
+  .ok .semaforo{background:var(--verde-bg);border-color:var(--verde)}
+  .ok .luz{background:var(--verde);color:#fff} .ok .estado{color:var(--verde)}
+  .bad .semaforo{background:var(--rojo-bg);border-color:var(--rojo)}
+  .bad .luz{background:var(--rojo);color:#fff} .bad .estado{color:var(--rojo)}
+  .vs{display:flex;gap:10px;margin-top:14px}
+  .box{flex:1;border:1px solid var(--borde);border-radius:12px;padding:14px 12px;text-align:center;background:#fff}
+  .box .lbl{font-size:11px;color:var(--gris);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+  .box .cat{font-size:24px;font-weight:800;margin:5px 0 3px;color:var(--azul)}
+  .box .zona{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block}
+  .zsegura{background:var(--verde-bg);color:var(--verde)}
+  .zriesgo{background:var(--rojo-bg);color:var(--rojo)}
+  .flecha{display:flex;align-items:center;color:var(--gris);font-size:22px;font-weight:700}
+  .det{background:#fff;border:1px solid var(--borde);border-radius:12px;padding:4px 14px;margin-top:12px;font-size:14px}
+  .fila{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f4f8}
+  .fila:last-child{border-bottom:none}
+  .fila .k{color:var(--gris)} .fila .v{font-weight:700;text-align:right}
+
+  .aviso{background:var(--ambar-bg);border:1px solid #f0d9a8;border-radius:11px;padding:11px 14px;
+         font-size:12.5px;color:#8a5a10;margin-bottom:14px}
+  .aviso b{color:#6b4408}
+
+  /* Métricas */
+  .metricas{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .metrica{background:linear-gradient(135deg,#fff,#f7fafd);border:1px solid var(--borde);border-radius:14px;
+           padding:18px 12px;text-align:center}
+  .metrica .num{font-size:clamp(26px,4vw,40px);font-weight:800;color:var(--azul3);line-height:1}
+  .metrica .desc{font-size:12px;color:var(--gris);font-weight:600;margin-top:7px}
+  .metrica .extra{font-size:11px;color:var(--gris);margin-top:3px;opacity:.8}
+
+  /* Barras comparativas */
+  .barra-item{margin:10px 0}
+  .barra-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+  .barra-top .n{font-weight:600} .barra-top .val{font-weight:800;color:var(--azul)}
+  .barra-bg{background:var(--gris-claro);border-radius:8px;height:24px;overflow:hidden}
+  .barra-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--azul2),var(--azul3));
+              display:flex;align-items:center;transition:width .8s ease}
+  .barra-fill.ganador{background:linear-gradient(90deg,var(--verde),#27ae60)}
+  .barra-fill.gris{background:linear-gradient(90deg,#9fb3c4,#b8c4ce)}
+
+  /* Matriz de confusión */
+  .matriz{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;margin-top:8px;align-items:stretch}
+  .celda{border-radius:11px;padding:16px 10px;text-align:center}
+  .celda .cnum{font-size:clamp(22px,3vw,32px);font-weight:800;line-height:1}
+  .celda .clbl{font-size:11px;margin-top:5px;font-weight:600;opacity:.9}
+  .encab{background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;
+          font-size:12px;font-weight:700;border-radius:11px;padding:8px;text-align:center}
+  .encab-lat{writing-mode:vertical-rl;transform:rotate(180deg)}
+  .vn{background:var(--verde-bg);color:var(--verde);border:1.5px solid #b8e0c8}
+  .vp{background:var(--verde-bg);color:var(--verde);border:2px solid var(--verde)}
+  .fp{background:var(--ambar-bg);color:var(--ambar);border:1.5px solid #f0d9a8}
+  .fn{background:var(--rojo-bg);color:var(--rojo);border:2px solid var(--rojo)}
+  .leyenda{font-size:12px;color:var(--gris);margin-top:12px;line-height:1.7}
+  .leyenda b{color:#1a1a1a}
+  .pill{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-right:5px}
+
+  .nota-real{background:var(--verde-bg);border:1px solid #b8e0c8;border-radius:11px;padding:11px 14px;
+             font-size:12.5px;color:#166534;margin-bottom:14px}
+  .footer{text-align:center;font-size:11.5px;color:var(--gris);margin-top:18px;padding:0 16px}
+  @media(max-width:560px){
+    .metricas{grid-template-columns:1fr}
+    .vs{flex-direction:column}
+    .flecha{justify-content:center;transform:rotate(90deg)}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap-h">
+    <h1>Auditoría de Coherencia BI-RADS</h1>
+    <p>Detección de disociación semántica en informes mamográficos mediante PLN</p>
+    <div class="autores"><span class="nom">Inostroza S. · Moreno R.</span> — Universidad de Valparaíso · AUC 0,92 ± 0,02</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab activa" onclick="verTab('demo',this)">Demostración</div>
+  <div class="tab" onclick="verTab('resultados',this)">Resultados reales</div>
+</div>
+
+<!-- ===================== PESTAÑA DEMO ===================== -->
+<div class="wrap">
+<div id="demo" class="panel activo">
+  <div class="aviso">
+    <b>Demostración del concepto.</b> Esta pestaña ilustra cómo funciona el flujo del sistema con una lógica
+    simplificada de palabras clave. No ejecuta el modelo entrenado (que corre en los notebooks y alcanza AUC 0,92);
+    sirve para mostrar la idea de forma visual.
+  </div>
+
+  <div class="card">
+    <label for="informe">Pega un informe mamográfico completo (hallazgos + conclusión)</label>
+    <textarea id="informe" placeholder="Ej: Mama de composición heterogéneamente densa. Se observa nódulo de bordes espiculados en cuadrante superior externo de mama derecha... Conclusión: BI-RADS 2."></textarea>
+    <div class="ejemplos">
+      <span class="chip" onclick="cargar(0)">Ejemplo coherente</span>
+      <span class="chip" onclick="cargar(1)">Ejemplo con disociación</span>
+      <span class="chip" onclick="cargar(2)">Ejemplo zona segura</span>
+    </div>
+    <button class="btn" onclick="analizar()">Analizar coherencia</button>
+    <div id="resultado"></div>
+  </div>
+</div>
+
+<!-- ===================== PESTAÑA RESULTADOS ===================== -->
+<div id="resultados" class="panel">
+  <div class="nota-real">
+    <b>Resultados reales.</b> Los datos de esta pestaña provienen de la evaluación del modelo entrenado
+    (RoBERTa clínico), promediada sobre tres semillas, con conjunto de prueba independiente.
+  </div>
+
+  <div class="card">
+    <h2>Desempeño del modelo de zona</h2>
+    <div class="metricas">
+      <div class="metrica"><div class="num">0,92</div><div class="desc">AUC-ROC</div><div class="extra">± 0,02 (3 semillas)</div></div>
+      <div class="metrica"><div class="num">0,70</div><div class="desc">Sensibilidad</div><div class="extra">detecta 7 de 10 riesgos</div></div>
+      <div class="metrica"><div class="num">0,98</div><div class="desc">Especificidad</div><div class="extra">casi sin falsas alarmas</div></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--gris);margin:14px 0 0">Punto de operación: umbral 0,35, elegido para priorizar la detección de casos de riesgo.</p>
+  </div>
+
+  <div class="card">
+    <h2>Matriz de confusión</h2>
+    <p style="font-size:12.5px;color:var(--gris);margin:0 0 12px">Conjunto de prueba, agregado de 3 semillas (33 evaluaciones de riesgo, 1929 de casos seguros).</p>
+    <div class="matriz">
+      <div></div>
+      <div class="encab">Predijo SEGURO</div>
+      <div class="encab">Predijo RIESGO</div>
+
+      <div class="encab encab-lat">Era SEGURO</div>
+      <div class="celda vn"><div class="cnum">1889</div><div class="clbl">Verdaderos negativos</div></div>
+      <div class="celda fp"><div class="cnum">40</div><div class="clbl">Falsas alarmas</div></div>
+
+      <div class="encab encab-lat">Era RIESGO</div>
+      <div class="celda fn"><div class="cnum">10</div><div class="clbl">Casos escapados</div></div>
+      <div class="celda vp"><div class="cnum">23</div><div class="clbl">Riesgos detectados</div></div>
+    </div>
+    <div class="leyenda">
+      <span class="pill" style="background:var(--verde)"></span><b>23 riesgos detectados</b> de 33: el objetivo del sistema.<br>
+      <span class="pill" style="background:var(--rojo)"></span><b>10 escapados:</b> el número a mejorar, limitado por la escasez de datos de riesgo.<br>
+      <span class="pill" style="background:var(--ambar)"></span><b>40 falsas alarmas</b> sobre 1929 seguros: apenas un 2%.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Comparación de modelos (auditor, F1-macro)</h2>
+    <div id="barrasModelos"></div>
+    <p style="font-size:12px;color:var(--gris);margin:8px 0 0">RoBERTa clínico superó a BETO (línea base) y a RigoBERTa (modelo grande, que sobreajustó con pocos datos).</p>
+  </div>
+
+  <div class="card">
+    <h2>Estrategias frente al desbalance (F1-macro)</h2>
+    <div id="barrasBalanceo"></div>
+    <p style="font-size:12px;color:var(--gris);margin:8px 0 0">El ajuste de logits fue el más estable. Los sintéticos por LLM dieron un pico puntual que no se sostuvo entre semillas.</p>
+  </div>
+</div>
+</div>
+
+<div class="footer">Jornada de Ciencia de Datos 2026 · Universidad de Valparaíso · Herramienta de apoyo al radiólogo</div>
+
+<script>
+/* ---------- Datos reales para las barras ---------- */
+const modelos=[
+  {n:"RoBERTa clínico",v:0.54,g:true,nota:"± 0,04"},
+  {n:"BETO (base)",v:0.48,g:false},
+  {n:"RigoBERTa (grande)",v:0.47,g:false}
+];
+const balanceo=[
+  {n:"Ajuste de logits",v:0.54,g:true,nota:"± 0,04"},
+  {n:"Informes sintéticos (LLM)",v:0.55,g:false,nota:"1 corrida"},
+  {n:"Focal loss",v:0.51,g:false},
+  {n:"Ponderación de clases",v:0.48,g:false,nota:"± 0,05"},
+  {n:"LDAM + DRW",v:0.47,g:false}
+];
+function pintarBarras(cont,data){
+  const max=0.6;
+  cont.innerHTML=data.map(d=>`
+    <div class="barra-item">
+      <div class="barra-top"><span class="n">${d.n}</span><span class="val">${d.v.toFixed(2).replace('.',',')}${d.nota?' <span style="color:var(--gris);font-weight:500">'+d.nota+'</span>':''}</span></div>
+      <div class="barra-bg"><div class="barra-fill ${d.g?'ganador':'gris'}" style="width:0%" data-w="${(d.v/max*100).toFixed(1)}"></div></div>
+    </div>`).join('');
+}
+pintarBarras(document.getElementById('barrasModelos'),modelos);
+pintarBarras(document.getElementById('barrasBalanceo'),balanceo);
+function animarBarras(panel){
+  panel.querySelectorAll('.barra-fill').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.w+'%'},50)});
+}
+
+/* ---------- Tabs ---------- */
+function verTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('activo'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('activa'));
+  document.getElementById(id).classList.add('activo');
+  el.classList.add('activa');
+  if(id==='resultados') animarBarras(document.getElementById('resultados'));
+}
+
+/* ---------- Lógica de la demo (concepto, por palabras clave) ---------- */
+const ejemplos=[
+  "Mama de composición heterogéneamente densa. Se observan calcificaciones vasculares dispersas, sin nódulos ni distorsiones. Hallazgos benignos sin cambios respecto a estudio previo. Conclusión: BI-RADS 2. Control anual.",
+  "Se identifica nódulo de bordes espiculados e irregulares en cuadrante superior externo de mama izquierda, asociado a microcalcificaciones pleomorfas agrupadas y retracción cutánea. Conclusión: BI-RADS 2. Control anual.",
+  "Mama de predominio graso. Sin nódulos, sin calcificaciones sospechosas, sin distorsión de la arquitectura. Conclusión: BI-RADS 1."
+];
+function cargar(i){document.getElementById('informe').value=ejemplos[i];document.getElementById('resultado').style.display='none';}
+
+const RIESGO=["espiculad","irregular","microcalcificaci","pleomorf","distorsi","retracci","sospechos","adenopat","malign","amorf"];
+const NEGACIONES=["sin ","no ","ausencia","descarta","niega","negativ","libre de","sin evidencia"];
+const ZONAS={0:"segura",1:"segura",2:"segura",3:"segura",4:"riesgo",5:"riesgo",6:"riesgo"};
+
+// ¿la palabra clave en la posición idx está negada dentro de su propia frase?
+function estaNegado(texto, idx){
+  const pre = texto.slice(0, idx);
+  const corte = Math.max(pre.lastIndexOf('.'), pre.lastIndexOf(';'), pre.lastIndexOf(','), pre.lastIndexOf(':'));
+  const clausula = pre.slice(corte+1);   // desde la última puntuación hasta la palabra
+  return NEGACIONES.some(n=>clausula.includes(n));
+}
+
+function extraerBirads(texto){
+  const t=texto.toLowerCase();
+  // buscar en la parte de conclusión si existe
+  let conc=t;
+  const mc=t.search(/conclusi[oó]n|impresi[oó]n|categor[ií]a/);
+  if(mc>=0) conc=t.slice(mc);
+  const m=conc.match(/bi[\s\-]?rads?\s*[:\-]?\s*([0-6])|categor[ií]a\s*[:\-]?\s*([0-6])|acr\s*([0-6])/);
+  if(m){const n=m[1]||m[2]||m[3];return parseInt(n);}
+  const rom=conc.match(/bi[\s\-]?rads?\s*[:\-]?\s*(vi|v|iv|iii|ii|i|0)/);
+  if(rom){const r={"0":0,"i":1,"ii":2,"iii":3,"iv":4,"v":5,"vi":6}[rom[1]];return r;}
+  return null;
+}
+function inferirZona(texto){
+  const t=texto.toLowerCase();
+  // usar solo la parte de hallazgos (antes de conclusión)
+  let hall=t;
+  const mc=t.search(/conclusi[oó]n|impresi[oó]n/);
+  if(mc>=0) hall=t.slice(0,mc);
+  const señales=[];
+  for(const k of RIESGO){
+    let idx=hall.indexOf(k);
+    while(idx>=0){                      // buscar una aparición NO negada de la palabra
+      if(!estaNegado(hall, idx)){señales.push(k);break;}
+      idx=hall.indexOf(k, idx+k.length);
+    }
+  }
+  return {zona:señales.length>0?"riesgo":"segura",señales};
+}
+function analizar(){
+  const texto=document.getElementById('informe').value.trim();
+  const cont=document.getElementById('resultado');
+  if(texto.length<15){cont.style.display='block';cont.className='';cont.innerHTML='<div class="aviso">Escribe o carga un informe para analizar.</div>';return;}
+
+  const declarado=extraerBirads(texto);
+  const inf=inferirZona(texto);
+  const zonaDecl=declarado!==null?ZONAS[declarado]:"desconocida";
+  const coherente = zonaDecl===inf.zona || zonaDecl==="desconocida";
+
+  const catDecl = declarado!==null?("BI-RADS "+declarado):"—";
+  const zonaInfLabel = inf.zona==="riesgo"?"ZONA RIESGO":"ZONA SEGURA";
+  const zonaDeclLabel = zonaDecl==="riesgo"?"ZONA RIESGO":(zonaDecl==="segura"?"ZONA SEGURA":"—");
+
+  cont.style.display='block';
+  cont.className=coherente?'ok':'bad';
+  cont.innerHTML=`
+    <div class="semaforo">
+      <div class="luz">${coherente?'✓':'!'}</div>
+      <p class="estado">${coherente?'COHERENTE':'POSIBLE DISOCIACIÓN'}</p>
+      <p class="sub">${coherente?'La descripción concuerda con la categoría declarada.':'El texto sugiere riesgo, pero la categoría quedó en zona segura.'}</p>
+    </div>
+    <div class="vs">
+      <div class="box"><div class="lbl">Declarado en el informe</div><div class="cat">${catDecl}</div>
+        <span class="zona ${zonaDecl==='riesgo'?'zriesgo':'zsegura'}">${zonaDeclLabel}</span></div>
+      <div class="flecha">⟷</div>
+      <div class="box"><div class="lbl">Inferido de los hallazgos</div><div class="cat">${inf.zona==='riesgo'?'Riesgo':'Seguro'}</div>
+        <span class="zona ${inf.zona==='riesgo'?'zriesgo':'zsegura'}">${zonaInfLabel}</span></div>
+    </div>
+    <div class="det">
+      <div class="fila"><span class="k">Categoría declarada (extractor)</span><span class="v">${catDecl}</span></div>
+      <div class="fila"><span class="k">Zona inferida (hallazgos)</span><span class="v">${zonaInfLabel}</span></div>
+      <div class="fila"><span class="k">Señales de riesgo detectadas</span><span class="v">${inf.señales.length>0?inf.señales.length:'ninguna'}</span></div>
+    </div>
+    ${!coherente?'<div class="aviso" style="margin-top:12px"><b>Alerta:</b> conviene una segunda revisión. Los hallazgos descritos apuntan a un nivel de riesgo mayor que el declarado.</div>':''}
+  `;
+}
+</script>
+</body>
+</html>
