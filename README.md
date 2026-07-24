@@ -1,8 +1,10 @@
 # Auditoría de Coherencia Diagnóstica BI-RADS mediante Procesamiento de Lenguaje Natural
 
-Sistema de **auditoría automática de coherencia** en informes mamográficos. Detecta cuándo los hallazgos descritos por el radiólogo y la categoría BI-RADS asignada no concuerdan (*disociación semántica*), para señalar posibles incoherencias antes de la entrega del informe.
+Sistema de **auditoría automática de coherencia** en informes mamográficos. Detecta cuándo los hallazgos descritos por el radiólogo y la categoría BI-RADS asignada no concuerdan (*disociación semántica*), para señalar posibles incoherencias antes de la entrega del informe o en la auditoría retrospectiva de series ya emitidas.
 
 **Autores:** Sebastián Inostroza, Robinson Moreno · Programa de Doctorado en Ciencias e Ingeniería para la Salud, Universidad de Valparaíso.
+
+**Demostración interactiva:** https://classy-frangipane-e94d28.netlify.app
 
 ---
 
