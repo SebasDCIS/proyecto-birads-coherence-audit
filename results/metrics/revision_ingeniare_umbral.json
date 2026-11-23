@@ -1,0 +1,74 @@
+{
+  "versiones": {
+    "python": "3.11.9",
+    "torch": "2.12.0",
+    "transformers": "5.10.2",
+    "scikit-learn": "1.9.0",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "matplotlib": "3.10.9",
+    "sistema": "Darwin 25.6.0 (arm64)",
+    "dispositivo": "mps"
+  },
+  "semillas": [
+    42,
+    123,
+    7
+  ],
+  "reentrenado": {
+    "42": false,
+    "123": false,
+    "7": false
+  },
+  "objetivo_sens_validacion": 0.7,
+  "auc_test_por_semilla": [
+    0.9114,
+    0.9451,
+    0.8918
+  ],
+  "auc_test_media": 0.9161,
+  "auc_test_de": 0.022,
+  "umbral_validacion": 0.14,
+  "umbral_youden_validacion": 0.095,
+  "resultados_test": {
+    "Validación (0.14)": {
+      "umbral": 0.14,
+      "sens_agrupada": 0.7273,
+      "espec_agrupada": 0.9471,
+      "sens_media": 0.7273,
+      "sens_de": 0.1286,
+      "espec_media": 0.9471,
+      "espec_de": 0.0575,
+      "tp": 24,
+      "riesgo": 33,
+      "fp_total": 102,
+      "fp_por_semilla": 34.0
+    },
+    "Youden val (0.10)": {
+      "umbral": 0.095,
+      "sens_agrupada": 0.7273,
+      "espec_agrupada": 0.9217,
+      "sens_media": 0.7273,
+      "sens_de": 0.1286,
+      "espec_media": 0.9217,
+      "espec_de": 0.0881,
+      "tp": 24,
+      "riesgo": 33,
+      "fp_total": 151,
+      "fp_por_semilla": 50.3333
+    },
+    "Por defecto (0.50)": {
+      "umbral": 0.5,
+      "sens_agrupada": 0.6667,
+      "espec_agrupada": 0.9844,
+      "sens_media": 0.6667,
+      "sens_de": 0.0429,
+      "espec_media": 0.9844,
+      "espec_de": 0.0125,
+      "tp": 22,
+      "riesgo": 33,
+      "fp_total": 30,
+      "fp_por_semilla": 10.0
+    }
+  }
+}

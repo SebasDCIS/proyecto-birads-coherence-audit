@@ -28,14 +28,16 @@ proyecto-birads-coherence-audit/
 │   ├── BETO_BIRADS.ipynb                      # Clasificador (baseline) + Auditor BETO (sin fuga)
 │   ├── Auditor_RoBERTa_Clinico.ipynb         # Auditor RoBERTa clínico (mejor 7 clases)
 │   ├── Auditor_RoBERTa_FocalLoss.ipynb       # Experimento: focal loss
-│   ├── Auditor_RoBERTa_Sintetico.ipynb       # Experimento: datos sintéticos (LLM)
+│   ├── Auditor_RoBERTa_Sintetico.ipynb       # Experimento: datos sintéticos (Gemini)
 │   ├── Auditor_RigoBERTa_Clinical.ipynb      # Experimento: RigoBERTa Clinical (XLM-R large, 2025)
 │   ├── Balanceo_LogitAdj_LDAM.ipynb          # Balanceo: logit adjustment y LDAM
 │   ├── Balanceo_MultiSemilla.ipynb           # Balanceo: comparación multi-semilla (media ± desv.)
 │   ├── Evaluacion_Zonas.ipynb                # Evaluación por zonas del modelo de 7 clases
 │   ├── Auditor_Zona_Binario.ipynb            # Modelo binario directo de zona (resultado principal)
 │   ├── Zona_Binario_MultiSemilla.ipynb       # Verificación multi-semilla del AUC
-│   ├── Ajuste_Umbral_Zona.ipynb              # Selección del punto de operación
+│   ├── Ajuste_Umbral_Zona.ipynb              # Selección del punto de operación (exploración, una semilla)
+│   ├── Zona_Binario_ROC_Real.ipynb           # Modelo binario: tres semillas + curva ROC
+│   ├── Revision_Ingeniare_Umbral_Figura3.ipynb # Umbral elegido en validación + Figura 3 a 300 dpi
 │   ├── armar_csv_sinteticos.py               # Arma el CSV de informes sintéticos
 │   └── colab/
 │       ├── Colab_RoBERTa_512tokens.ipynb     # Experimento 512 tokens (GPU)
@@ -96,9 +98,9 @@ Experimentos comparativos (opcionales): focal loss, datos sintéticos, RigoBERTa
 |---|---|
 | Ponderación de clases | 0,5871 (corrida) · 0,48 ± 0,05 (multi-semilla) |
 | **Logit Adjustment** (Menon 2021) | 0,5865 (corrida) · **0,54 ± 0,04** (multi-semilla) |
-| Focal loss | 0,5070 |
-| Datos sintéticos (LLM) | 0,5494 |
-| LDAM + DRW (Cao 2019) | 0,4747 |
+| Focal loss | 0,5070 (corrida) |
+| Datos sintéticos (Gemini) | 0,5973 (corrida) |
+| LDAM + DRW (Cao 2019) | 0,4747 (corrida) |
 
 Logit adjustment fue consistentemente mejor en la comparación multi-semilla (ganó en las tres semillas).
 
@@ -106,11 +108,13 @@ Logit adjustment fue consistentemente mejor en la comparación multi-semilla (ga
 
 | Métrica | Valor |
 |---|---|
-| **AUC-ROC** | **0,92 ± 0,03** |
-| Sensibilidad | 0,70 |
-| Especificidad | 0,97 |
+| **AUC-ROC** | **0,92 ± 0,02** |
+| Sensibilidad (umbral 0,50) | 0,67 ± 0,04 |
+| Especificidad (umbral 0,50) | 0,98 ± 0,01 |
+| Sensibilidad (umbral 0,14, elegido en validación) | 0,73 ± 0,13 |
+| Especificidad (umbral 0,14, elegido en validación) | 0,95 ± 0,06 |
 
-El AUC es la métrica principal por ser independiente del umbral y robusta frente al desbalance. Las cifras se reportan como media ± desviación sobre tres semillas.
+El AUC es la métrica principal por ser independiente del umbral y robusta frente al desbalance. Las cifras se reportan como media ± desviación sobre tres semillas. El punto de operación principal es el umbral convencional 0,50, fijado de antemano. El umbral 0,14 se eligió en validación como alternativa orientada a la sensibilidad (`notebooks/Revision_Ingeniare_Umbral_Figura3.ipynb`); con él aumentan las falsas alarmas de unas 10 a unas 34 por semilla en el conjunto de prueba.
 
 ---
 
@@ -121,6 +125,7 @@ El AUC es la métrica principal por ser independiente del umbral y robusta frent
 - **Reproducibilidad.** Módulo único de limpieza (`src/preprocessing.py`) y dataset versionado por SHA-256.
 - **Reporte con varianza.** Con clases muy pequeñas, una sola corrida es inestable. Las cifras finales se reportan como media ± desviación sobre varias semillas.
 - **Métrica según la tarea.** F1-macro para la formulación multiclase; AUC-ROC más sensibilidad/especificidad para la formulación binaria de zona.
+- **Umbral fijado sin mirar el test.** El barrido de umbrales sobre el conjunto de prueba al final de `Zona_Binario_ROC_Real.ipynb` fue exploratorio y no se usa para reportar. El umbral principal (0,50) se fijó de antemano y la alternativa (0,14) se eligió en validación.
 
 ---
 
@@ -140,4 +145,4 @@ Las categorías de riesgo (BI-RADS 4–6) suman 73 informes en todo el corpus, l
 
 ## Datos
 
-Corpus público de informes mamográficos en español: Vázquez Noguera et al. (2025), *Data in Brief*. Los informes sintéticos en `data/synthetic/` fueron generados por un modelo de lenguaje y no están validados clínicamente; se usan solo en entrenamiento.
+Corpus público de informes mamográficos en español: Vázquez Noguera et al. (2025), *Data in Brief*. Los informes sintéticos en `data/synthetic/` fueron generados con Gemini (Google, aplicación web, junio de 2026) y no están validados clínicamente; se usan solo en entrenamiento. Detalles en `data/synthetic/LEEME.md`.

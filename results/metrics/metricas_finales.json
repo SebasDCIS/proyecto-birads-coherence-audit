@@ -1,31 +1,111 @@
 {
-  "modelo_clasificador": {
-    "nombre": "BETO + Observations + Conclusion",
-    "accuracy": 0.9847,
-    "f1_macro": 0.9,
-    "mejor_epoca": 7,
-    "lr": 3e-05,
-    "epochs": 10,
-    "dropout": 0.3
-  },
-  "modelo_auditor": {
-    "nombre": "BETO + solo Observations + Augmentación",
-    "f1_macro": 0.486,
-    "mejor_epoca": 7,
-    "lr": 3e-05,
-    "epochs": 15,
-    "dropout": 0.5,
-    "augmentacion": true
-  },
-  "estado_del_arte": {
-    "Lopez_Ubeda_2024": 0.74,
-    "Hussain_2024": 0.78
-  },
+  "nota": "Cifras finales del artículo (revisión Ingeniare, noviembre 2026). La versión anterior, de la etapa con BETO, quedó en metricas_finales_v1_historico.json.",
   "dataset": {
     "total": 4357,
     "train": 3051,
     "val": 652,
     "test": 654,
-    "fuente": "Vázquez Noguera et al. 2025"
+    "riesgo_train": 51,
+    "riesgo_val": 11,
+    "riesgo_test": 11,
+    "particion": "70/15/15 estratificada por categoría, semilla 42",
+    "fuente": "Vázquez Noguera et al. 2025, Data in Brief"
+  },
+  "clasificador_referencia": {
+    "modelo": "dccuchile/bert-base-spanish-wwm-cased",
+    "entrada": "observaciones + conclusión (lee la categoría)",
+    "ejecuciones": 1,
+    "f1_macro": 0.9,
+    "exactitud": 0.9847,
+    "cuaderno": "BETO_BIRADS.ipynb"
+  },
+  "auditor_7_clases": {
+    "codificadores_una_corrida": {
+      "protocolo": "semilla 42, entropía cruzada ponderada",
+      "BETO": 0.4773,
+      "RoBERTa_clinico": 0.5871,
+      "RigoBERTa_Clinical": 0.4702
+    },
+    "balanceo_tres_semillas": {
+      "ponderacion_clases": {
+        "media": 0.4814,
+        "de": 0.0545
+      },
+      "logit_adjustment": {
+        "media": 0.5391,
+        "de": 0.0444
+      },
+      "cuaderno": "Balanceo_MultiSemilla.ipynb"
+    },
+    "balanceo_una_corrida": {
+      "focal_loss_gamma2": 0.507,
+      "sinteticos_gemini": 0.5973,
+      "ldam_drw": 0.4747,
+      "logit_adjustment": 0.5865,
+      "ponderacion_clases_misma_semilla": 0.5871
+    }
+  },
+  "zona_binario": {
+    "auc_test": {
+      "media": 0.9161,
+      "de": 0.022,
+      "por_semilla": {
+        "42": 0.9114,
+        "123": 0.9451,
+        "7": 0.8918
+      }
+    },
+    "umbral_0.50_principal": {
+      "sensibilidad": {
+        "media": 0.667,
+        "de": 0.043
+      },
+      "especificidad": {
+        "media": 0.984,
+        "de": 0.013
+      },
+      "falsas_alarmas_por_semilla": 10
+    },
+    "umbral_0.14_validacion": {
+      "sensibilidad": {
+        "media": 0.727,
+        "de": 0.129
+      },
+      "especificidad": {
+        "media": 0.947,
+        "de": 0.058
+      },
+      "falsas_alarmas_por_semilla": 34
+    },
+    "cuadernos": [
+      "Zona_Binario_ROC_Real.ipynb",
+      "Revision_Ingeniare_Umbral_Figura3.ipynb"
+    ],
+    "detalle": "revision_ingeniare_umbral.json"
+  },
+  "ventana_256_vs_512_una_corrida": {
+    "f1_macro": {
+      "256": 0.6017,
+      "512": 0.478
+    },
+    "sensibilidad_zona": {
+      "256": 0.636,
+      "512": 0.545
+    },
+    "auc_zona_derivado": {
+      "256": 0.8402,
+      "512": 0.958
+    },
+    "gpu": "NVIDIA Tesla T4 (Colab)",
+    "cuaderno": "colab/Colab_Hipotesis_256_vs_512.ipynb"
+  },
+  "entorno": {
+    "python": "3.11.9",
+    "torch": "2.12.0",
+    "transformers": "5.10.2",
+    "scikit-learn": "1.9.0",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "hardware": "Apple M4, 16 GB, MPS"
   }
 }
